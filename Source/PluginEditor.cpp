@@ -49,5 +49,7 @@ void UtilAudioProcessorEditor::resized()
 }
 
 void UtilAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
-	audioProcessor.mGainFloat = mGainSlider.getValue();
+	float gainVal = mGainSlider.getValue();
+	audioProcessor.setParameter(0, gainVal);
+	DBG(processor.getParameter(0));
 }
