@@ -10,8 +10,9 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-UtilAudioProcessorEditor::UtilAudioProcessorEditor(UtilAudioProcessor& p)
-	: AudioProcessorEditor(&p), audioProcessor(p)
+UtilAudioProcessorEditor::UtilAudioProcessorEditor(UtilAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
+	: AudioProcessorEditor(&p), audioProcessor(p),
+	valueTreeState(vts)
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -25,6 +26,8 @@ UtilAudioProcessorEditor::UtilAudioProcessorEditor(UtilAudioProcessor& p)
 
 	addAndMakeVisible(&mGainSlider);
 	mGainSlider.addListener(this);
+
+	gainAttachment = std::make_unique<SliderAttachment>(valueTreeState, "gain", mGainSlider);
 }
 
 UtilAudioProcessorEditor::~UtilAudioProcessorEditor()
@@ -49,7 +52,5 @@ void UtilAudioProcessorEditor::resized()
 }
 
 void UtilAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
-	float gainVal = mGainSlider.getValue();
-	audioProcessor.setParameter(0, gainVal);
-	DBG(processor.getParameter(0));
+
 }

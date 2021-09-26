@@ -61,8 +61,8 @@ private:
 	//juce::AudioParameterFloat* mGain;
 
 	// Param tree implementation
-	std::atomic<float>* mGain; // gain param
 	juce::AudioProcessorValueTreeState parameters; // parameter tree
+	std::atomic<float>* mGain; // gain param
 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UtilAudioProcessor)

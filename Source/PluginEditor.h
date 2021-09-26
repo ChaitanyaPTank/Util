@@ -12,6 +12,10 @@
 #include "PluginProcessor.h"
 
 
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+
+
 //==============================================================================
 /**
 */
@@ -19,7 +23,7 @@ class UtilAudioProcessorEditor : public juce::AudioProcessorEditor,
 	private juce::Slider::Listener
 {
 public:
-	UtilAudioProcessorEditor(UtilAudioProcessor&);
+	UtilAudioProcessorEditor(UtilAudioProcessor&, juce::AudioProcessorValueTreeState &vts);
 	~UtilAudioProcessorEditor() override;
 
 	//==============================================================================
@@ -30,7 +34,8 @@ private:
 	// access the processor object that created it.
 	UtilAudioProcessor& audioProcessor;
 	juce::Slider mGainSlider;
-
+	std::unique_ptr<SliderAttachment> gainAttachment;
+	juce::AudioProcessorValueTreeState& valueTreeState;
 
 	// callback function
 	void sliderValueChanged(juce::Slider* slider) override;
