@@ -22,16 +22,24 @@ UtilAudioProcessor::UtilAudioProcessor()
 	),
 	parameters(*this, nullptr, juce::Identifier("APVTSTutorial"),
 		{
+			// gain param setup
 			std::make_unique<juce::AudioParameterFloat>("gain",				// parameterID
 														 "Gain",            // parameter name
 														 0.0f,              // minimum value
 														 1.0f,              // maximum value
-														 0.5f),				// defailt value
+														 1.0f),				// defailt value
+			// pan param setup
+			 std::make_unique<juce::AudioParameterFloat>("pan",
+														 "Pan",
+														 0.0f,
+														 1.0f,
+														 0.5f),
 		})
 #endif
 {
 	//addParameter(mGain = new juce::AudioParameterFloat("gain", "Gain", 0.0f, 1.0f, 0.5f));
 	mGain = parameters.getRawParameterValue("gain");
+	mPan = parameters.getRawParameterValue("pan");
 }
 
 UtilAudioProcessor::~UtilAudioProcessor()
@@ -162,14 +170,33 @@ void UtilAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 	// Alternatively, you can process the samples with the channels
 	// interleaved by keeping the same state.
 
-	if (*mGain == prevGain)
-	{
-		buffer.applyGain(*mGain);
-	}
-	else
-	{
-		buffer.applyGainRamp(0, buffer.getNumSamples(), prevGain, *mGain);
-		prevGain = *mGain;
+	// for gain ramp
+	//if (*mGain == prevGain)
+	//{
+		//buffer.applyGain(*mGain);
+	//}
+	//else
+	//{
+		//buffer.applyGainRamp(0, buffer.getNumSamples(), prevGain, *mGain);
+		//prevGain = *mGain;
+	//}
+	float gainL = *mGain;
+	float gainR = *mGain;
+	for (int i = 0; i < buffer.getNumSamples(); ++i) {
+		if (*mGain == prevGain) {
+			gainR = (*mPan) * (*mGain);
+			gainL = (1 - (*mPan)) * (*mGain);
+		}
+		else {
+			// curently finding way to get interpolated value
+			float interPol = *mGain;
+			gainL = (*mPan) * (interPol);
+			gainR = (1 - (*mPan)) * (interPol);
+		}
+		auto* channelL = buffer.getWritePointer(0);
+		auto* channelR = buffer.getWritePointer(1);
+		channelL[i] *= gainL;
+		channelR[i] *= gainR;
 	}
 
 	// ..do something to the data...

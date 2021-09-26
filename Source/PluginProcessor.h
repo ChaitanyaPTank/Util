@@ -53,16 +53,14 @@ public:
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
-	//float mGainFloat;
-
 private:
 
 	float prevGain = 0.05f; // storing previous gain value
-	//juce::AudioParameterFloat* mGain;
 
 	// Param tree implementation
 	juce::AudioProcessorValueTreeState parameters; // parameter tree
 	std::atomic<float>* mGain; // gain param
+	std::atomic<float>* mPan; // panning param
 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UtilAudioProcessor)
