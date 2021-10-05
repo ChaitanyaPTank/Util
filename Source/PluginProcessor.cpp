@@ -114,6 +114,7 @@ void UtilAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..
 	prevGain = *mGain; // initialising the prevGain to the value of gain parameter.
+	prevPan = *mPan; // initialising the prevGain to the value of gain parameter.
 }
 
 void UtilAudioProcessor::releaseResources()
@@ -170,36 +171,22 @@ void UtilAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 	// Alternatively, you can process the samples with the channels
 	// interleaved by keeping the same state.
 
+	float gainL = ((1 - *mPan) * *mGain);
+	float gainR = (*mPan * *mGain);
 	// for gain ramp
-	//if (*mGain == prevGain)
-	//{
-		//buffer.applyGain(*mGain);
-	//}
-	//else
-	//{
-		//buffer.applyGainRamp(0, buffer.getNumSamples(), prevGain, *mGain);
-		//prevGain = *mGain;
-	//}
-	float gainL = *mGain;
-	float gainR = *mGain;
-	for (int i = 0; i < buffer.getNumSamples(); ++i) {
-		if (*mGain == prevGain) {
-			gainR = (*mPan) * (*mGain);
-			gainL = (1 - (*mPan)) * (*mGain);
-		}
-		else {
-			// curently finding way to get interpolated value
-			float interPol = *mGain;
-			gainL = (*mPan) * (interPol);
-			gainR = (1 - (*mPan)) * (interPol);
-		}
-		auto* channelL = buffer.getWritePointer(0);
-		auto* channelR = buffer.getWritePointer(1);
-		channelL[i] *= gainL;
-		channelR[i] *= gainR;
+	if (*mGain == prevGain && *mPan == prevPan)
+	{
+		buffer.applyGain(0, 0, buffer.getNumSamples(), gainL);
+		buffer.applyGain(1, 0, buffer.getNumSamples(), gainR);
+	}
+	else
+	{
+		buffer.applyGainRamp(0, 0, buffer.getNumSamples(), ((1 - prevPan) * prevGain), gainL);
+		buffer.applyGainRamp(1, 0, buffer.getNumSamples(), (prevPan * prevGain), gainR);
+		prevGain = *mGain;
+		prevPan = *mPan;
 	}
 
-	// ..do something to the data...
 }
 
 //==============================================================================
