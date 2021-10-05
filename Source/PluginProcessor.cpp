@@ -22,16 +22,24 @@ UtilAudioProcessor::UtilAudioProcessor()
 	),
 	parameters(*this, nullptr, juce::Identifier("APVTSTutorial"),
 		{
+			// gain param setup
 			std::make_unique<juce::AudioParameterFloat>("gain",				// parameterID
 														 "Gain",            // parameter name
 														 0.0f,              // minimum value
 														 1.0f,              // maximum value
-														 0.5f),				// defailt value
+														 1.0f),				// defailt value
+			// pan param setup
+			 std::make_unique<juce::AudioParameterFloat>("pan",
+														 "Pan",
+														 0.0f,
+														 1.0f,
+														 0.5f),
 		})
 #endif
 {
 	//addParameter(mGain = new juce::AudioParameterFloat("gain", "Gain", 0.0f, 1.0f, 0.5f));
 	mGain = parameters.getRawParameterValue("gain");
+	mPan = parameters.getRawParameterValue("pan");
 }
 
 UtilAudioProcessor::~UtilAudioProcessor()
@@ -106,6 +114,7 @@ void UtilAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..
 	prevGain = *mGain; // initialising the prevGain to the value of gain parameter.
+	prevPan = *mPan; // initialising the prevGain to the value of gain parameter.
 }
 
 void UtilAudioProcessor::releaseResources()
@@ -162,17 +171,22 @@ void UtilAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 	// Alternatively, you can process the samples with the channels
 	// interleaved by keeping the same state.
 
-	if (*mGain == prevGain)
+	float gainL = ((1 - *mPan) * *mGain);
+	float gainR = (*mPan * *mGain);
+	// for gain ramp
+	if (*mGain == prevGain && *mPan == prevPan)
 	{
-		buffer.applyGain(*mGain);
+		buffer.applyGain(0, 0, buffer.getNumSamples(), gainL);
+		buffer.applyGain(1, 0, buffer.getNumSamples(), gainR);
 	}
 	else
 	{
-		buffer.applyGainRamp(0, buffer.getNumSamples(), prevGain, *mGain);
+		buffer.applyGainRamp(0, 0, buffer.getNumSamples(), ((1 - prevPan) * prevGain), gainL);
+		buffer.applyGainRamp(1, 0, buffer.getNumSamples(), (prevPan * prevGain), gainR);
 		prevGain = *mGain;
+		prevPan = *mPan;
 	}
 
-	// ..do something to the data...
 }
 
 //==============================================================================

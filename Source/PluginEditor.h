@@ -23,7 +23,7 @@ class UtilAudioProcessorEditor : public juce::AudioProcessorEditor,
 	private juce::Slider::Listener
 {
 public:
-	UtilAudioProcessorEditor(UtilAudioProcessor&, juce::AudioProcessorValueTreeState &vts);
+	UtilAudioProcessorEditor(UtilAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
 	~UtilAudioProcessorEditor() override;
 
 	//==============================================================================
@@ -33,9 +33,13 @@ private:
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	UtilAudioProcessor& audioProcessor;
+	juce::AudioProcessorValueTreeState& valueTreeState;
+
 	juce::Slider mGainSlider;
 	std::unique_ptr<SliderAttachment> gainAttachment;
-	juce::AudioProcessorValueTreeState& valueTreeState;
+
+	juce::Slider mPanSlider;
+	std::unique_ptr<SliderAttachment> panAttachment;
 
 	// callback function
 	void sliderValueChanged(juce::Slider* slider) override;

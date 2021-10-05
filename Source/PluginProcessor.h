@@ -10,6 +10,11 @@
 
 #include <JuceHeader.h>
 
+// variables for constant power panning
+#define PI = 4.0 * atan(1.0);
+#define PI_OVER_2 = PI / 2;
+#define ROOT_2_OVER_2 = sqrt(2.0) * 0.5;
+
 //==============================================================================
 /**
 */
@@ -53,16 +58,18 @@ public:
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
-	//float mGainFloat;
-
 private:
 
-	float prevGain = 0.05f; // storing previous gain value
-	//juce::AudioParameterFloat* mGain;
+	//float prevGainL = 0.05f; // storing previous gain value left channel
+	//float prevGainR = 0.05f; // storing previous gain value left channel
+
+	float prevGain = 0.05f;
+	float prevPan = 0.05f;
 
 	// Param tree implementation
 	juce::AudioProcessorValueTreeState parameters; // parameter tree
 	std::atomic<float>* mGain; // gain param
+	std::atomic<float>* mPan; // panning param
 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UtilAudioProcessor)
